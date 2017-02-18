@@ -1,5 +1,5 @@
 *.o
-./MDK
+/MDK
 *.map
 *.lst
 *.crf
