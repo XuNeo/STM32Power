@@ -1,5 +1,5 @@
 #include "power.h"
-#include "arm_math.h"
+
 void power_init(void)
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
