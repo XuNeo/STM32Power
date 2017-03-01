@@ -59,8 +59,10 @@ void NMI_Handler(void)
   * @param  None
   * @retval None
   */
+#include "power.h"
 void HardFault_Handler(void)
 {
+	LED_RED_ON();
   /* Go to infinite loop when Hard Fault exception occurs */
   while (1)
   {

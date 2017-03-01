@@ -316,9 +316,9 @@ static void SetSysClock(void)
     /* PCLK = HCLK *///48MHz
     RCC->CFGR |= (uint32_t)RCC_CFGR_PPRE_DIV2;
 
-    /* PLL configuration = HSE(16) * 6 = 96 MHz */
+    /* PLL configuration = HSE(16) * 4 = 64 MHz */
     RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_PLLSRC | RCC_CFGR_PLLXTPRE | RCC_CFGR_PLLMULL));
-    RCC->CFGR |= (uint32_t)(RCC_CFGR_PLLSRC_PREDIV1 | RCC_CFGR_PLLXTPRE_PREDIV1 | RCC_CFGR_PLLMULL6);
+    RCC->CFGR |= (uint32_t)(RCC_CFGR_PLLSRC_PREDIV1 | RCC_CFGR_PLLXTPRE_PREDIV1 | RCC_CFGR_PLLMULL4);
             
     /* Enable PLL */
     RCC->CR |= RCC_CR_PLLON;

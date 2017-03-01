@@ -1,5 +1,4 @@
 #include "UART.H"
-#include "stdio.h"
 
 void uart_init(void)
 {
@@ -31,7 +30,7 @@ void uart_init(void)
 	USART_Init(USART1,&USART_InitStructure);
 	USART_ITConfig(USART1,USART_IT_RXNE,ENABLE);
 	
-	USART_SWAPPinCmd(USART1,ENABLE);
+	//USART_SWAPPinCmd(USART1,ENABLE);
 	
 	USART_Cmd(USART1,ENABLE);
 	//interrupt configure
@@ -39,28 +38,67 @@ void uart_init(void)
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_InitStructure.NVIC_IRQChannelPriority = 0;
 	NVIC_Init(&NVIC_InitStructure);//	USART_String("at\r\n");
-
-	printf("Uart Init OK...\n");
 }
 
-int fputc(int ch, FILE *f)
-{
-	USART_SendData(USART1, (unsigned char) ch);// USART1 ???? USART2 ?
-	while (!(USART1->ISR & USART_FLAG_TXE));
-	return (ch);
-}
+//int fputc(int ch, FILE *f)
+//{
+//	USART_SendData(USART1, (unsigned char) ch);// USART1 ???? USART2 ?
+//	while (!(USART1->ISR & USART_FLAG_TXE));
+//	return (ch);
+//}
 void uart_char(char data)
 {
 	USART_SendData(USART1, (unsigned char) data);// USART1 ???? USART2 ?
 	while (!(USART1->ISR & USART_FLAG_TXE));
 }
 
-void uart_string(char *p)
+void uart_string(const char *p)
 {
 	while(*p)
 	{
 		USART1->TDR = *p++;
-		while (!(USART2->ISR & USART_FLAG_TXE));
+		while (!(USART1->ISR & USART_FLAG_TXE));
+	}
+}
+#include "CBuff.h"
+CBuff_st cbuff;
+
+void power_on(void);
+void power_off(void);
+void power_set(int volt);
+
+void uart_event(void)
+{
+	static int volt = 100;
+	char c;
+	while(1)
+	{
+		if(CBuff_Read(&cbuff,&c) == CBuff_EOK)
+		{
+			switch(c)
+			{
+				case 'o':
+					power_on();
+					break;
+				case 'f':
+					power_off();
+					break;
+				case 'i':
+					if(volt < 1000)
+					volt += 100;
+					power_set(volt);
+					break;
+				case 'd':
+					if(volt >= 100)
+					volt -= 100;
+					power_set(volt);
+					break;
+				default:
+					break;
+			}
+		}
+		else
+			break;
 	}
 }
 
@@ -70,7 +108,7 @@ void USART1_IRQHandler(void)
 	
 	if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)
 	{
-		USART1->TDR = USART1->RDR;
+		CBuff_Write(&cbuff,USART1->RDR);
 	}
 }
 
